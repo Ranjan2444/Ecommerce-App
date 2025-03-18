@@ -1,15 +1,16 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import authMiddleware from '../middleware/authMiddleware.js';
+import roleMiddleware from '../middleware/roleMiddleware.js';
 
 const prisma = new PrismaClient();
 const router = express.Router();
 
 //Create a Product
-router.post('/',authMiddleware,async(req,res,next) => {
+router.post('/',roleMiddleware,async(req,res,next) => {
     //parsing name and price from request 
-    const{ name,price } = req.body;
-    if (!name || !price) {
+    const{ name,price,image} = req.body;
+    if (!name || !price || !image) {
         const error = new Error('Product name and price are required');
         error.name = 'ValidationError';
         return next(error);  // Pass error to the global error handler
@@ -17,7 +18,7 @@ router.post('/',authMiddleware,async(req,res,next) => {
 
     try{
         const product = await prisma.product.create({
-            data: {name, price},
+            data: {name, price, image},
         });
         res.status(201).json(product);
     }catch(error){
@@ -72,10 +73,10 @@ router.get('/:id', async(req,res) =>{
 })
 
 //Update a product
-router.put('/:id',authMiddleware,async(req,res,next) =>{
+router.put('/:id',roleMiddleware,async(req,res,next) =>{
     const {id} = req.params;
-    const {name,price} = req.body;
-    if (!name || !price) {
+    const {name,price, image} = req.body;
+    if (!name || !price || !image) {
         const error = new Error('Product name and price are required');
         error.name = 'ValidationError';
         return next(error);
@@ -83,7 +84,7 @@ router.put('/:id',authMiddleware,async(req,res,next) =>{
     try{
         const product = await prisma.product.update({
             where : {id: Number(id)},
-            data: {name, price},
+            data: {name, price, image},
         });
         res.json(product)
     }catch(error){
@@ -92,7 +93,7 @@ router.put('/:id',authMiddleware,async(req,res,next) =>{
 })
 
 //Deleting a product
-router.delete('/:id',authMiddleware,async(req,res) =>{
+router.delete('/:id',roleMiddleware,async(req,res) =>{
     const{id} = req.params;
     try{
         const product = await prisma.product.delete({

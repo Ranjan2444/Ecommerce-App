@@ -8,14 +8,16 @@ const router = express.Router();
 
 //Register
 router.post('/register', async(req,res) => {
-    const {username, password} = req.body;
+    const {username, password, role} = req.body;
     const hashedPassword = await bcrypt.hash(password,10)
+    const userRole = role || 'USER';
 
     try{
         const user = await prisma.user.create({
             data:{
                 username,
-                password : hashedPassword, 
+                password : hashedPassword,
+                role: userRole,
             },
         });
         res.status(201).json({message:'User created successfully'});
@@ -44,7 +46,7 @@ router.post('/login',async(req,res) =>{
     }
 
     const token = jwt.sign(
-        {userId: user.id, username: user.username},
+        {userId: user.id, username: user.username,role: user.role},
         process.env.JWT_SECRET, // this will add the secret to the env file
         {expiresIn: '1h'}
     );
