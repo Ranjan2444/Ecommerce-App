@@ -11,8 +11,22 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-//Midleware
-app.use(cors());
+const allowedOrigin = "http://localhost:5173";
+
+app.use(cors({
+  origin: function(origin, callback) {
+    if (origin === allowedOrigin || !origin) {
+      callback(null, true); // Allow requests from localhost:5173 and non-browser requests (e.g., Postman)
+    } else {
+        //call back function has two parameters i.e, (error,allowed)
+      callback(new Error('Not allowed by CORS'), false); // Reject requests from other origins
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE"]
+}));
+
+
+//To get data from frontend in json format
 app.use(express.json());
 
 

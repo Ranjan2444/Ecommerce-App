@@ -13,15 +13,17 @@ export const AuthProvider = ({ children }) => {
       const decodedToken = jwtDecode(savedToken);
       setUser(decodedToken); // Set user with decoded info (including role)
       setToken(savedToken);
+
     }
   }, []);
 
   const login = (token) => {
     const decodedToken = jwtDecode(token);
-    setUser(decodedToken); // Store user info from the token
+    setUser({ ...decodedToken });  // Ensure a new object reference
     setToken(token);
     localStorage.setItem("token", token);
   };
+  
 
   const logout = () => {
     setUser(null);
@@ -30,7 +32,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={{ user, token, login, logout,setUser,setToken }}>
       {children}
     </AuthContext.Provider>
   );
